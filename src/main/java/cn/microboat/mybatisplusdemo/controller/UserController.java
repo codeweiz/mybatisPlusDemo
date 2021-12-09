@@ -78,7 +78,7 @@ public class UserController {
     }
 
     /**
-     * 不分页获取用户列表
+     * 不分页带参数获取用户列表
      * */
     @PutMapping("/list")
     public ReturnBase<List<UserVO>> getUserList(@RequestBody UserPO userPO) {
@@ -86,7 +86,7 @@ public class UserController {
     }
 
     /**
-     * 分页获取用户列表
+     * 分页带参数获取用户列表
      * */
     @PutMapping("/page/list")
     public ReturnBase<List<UserVO>> getUserPageList(@RequestBody UserPO userPO, Page<User> page) {
