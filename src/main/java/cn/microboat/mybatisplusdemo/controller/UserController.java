@@ -80,15 +80,15 @@ public class UserController {
     /**
      * 不分页获取用户列表
      * */
-    @GetMapping("/list")
-    public ReturnBase<List<UserVO>> getUserList() {
-        return userService.getUserList();
+    @PutMapping("/list")
+    public ReturnBase<List<UserVO>> getUserList(@RequestBody UserPO userPO) {
+        return userService.getUserList(userPO);
     }
 
     /**
      * 分页获取用户列表
      * */
-    @PostMapping("/page/list")
+    @PutMapping("/page/list")
     public ReturnBase<List<UserVO>> getUserPageList(@RequestBody UserPO userPO, Page<User> page) {
         return userService.getUserPageList(userPO, page);
     }

@@ -16,9 +16,10 @@ import java.util.List;
 public interface UserService extends IService<User> {
     /**
      * 不分页获取所有用户列表
+     * @param userPO
      * @return List<UserVO>
      * */
-    ReturnBase<List<UserVO>> getUserList();
+    ReturnBase<List<UserVO>> getUserList(UserPO userPO);
 
     /**
      * 根据 id 获取用户信息

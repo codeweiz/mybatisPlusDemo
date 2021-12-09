@@ -37,7 +37,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      *  根据 id 获取未删除的用户
      * */
     private User getUser(String id) {
-        return userMapper.selectOne(new QueryWrapper<User>().eq("id", id).eq("delete_flag", "0"));
+        return userMapper.selectOne(new QueryWrapper<User>().eq("id", id).eq("delete_flag", LogicDeleteFlag.NOT_DELETED.getDeleteFlag()));
     }
 
     @Override
@@ -160,6 +160,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 
+        queryWrapper.eq("delete_flag", LogicDeleteFlag.NOT_DELETED.getDeleteFlag());
+
         if (!StringUtils.isEmpty(userPO.getId())) {
             queryWrapper.eq("id", userPO.getId());
         }
@@ -237,8 +239,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public ReturnBase<List<UserVO>> getUserList() {
-        List<User> userList = userMapper.selectList(new QueryWrapper<User>().eq("delete_flag", "0"));
-        return new ReturnBase<List<UserVO>>().succeedWithDataCount(new User2VO().userList2VO(userList), (long) userList.size());
+    public ReturnBase<List<UserVO>> getUserList(UserPO userPO) {
+        ReturnBase<UserVO> returnBase = new ReturnBase<>();
+
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+
+        queryWrapper.eq("delete_flag", LogicDeleteFlag.NOT_DELETED.getDeleteFlag());
+
+        if (!StringUtils.isEmpty(userPO.getId())) {
+            queryWrapper.eq("id", userPO.getId());
+        }
+
+        if (!StringUtils.isEmpty(userPO.getName())) {
+            queryWrapper.eq("name", userPO.getName());
+        }
+
+        /*
+            likeRight，即通配符 % 在右边，这时候是可以走索引的
+            like、likeLeft，有通配符 % 在左边，这时候是不走索引的
+            这里根据需求选择
+          */
+        if (!StringUtils.isEmpty(userPO.getKeyword())) {
+            queryWrapper.like("name", userPO.getKeyword())
+                    .or().like("email", userPO.getKeyword());
+        }
+
+        List<User> userList = userMapper.selectList(queryWrapper);
+        return returnBase.succeedWithDataCount(new User2VO().userList2VO(userList), (long) userList.size());
     }
 }
