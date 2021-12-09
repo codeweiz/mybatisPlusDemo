@@ -33,9 +33,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private UserMapper userMapper;
 
-    @Resource
-    private UserService userService;
-
     /**
      *  根据 id 获取未删除的用户
      * */
@@ -80,7 +77,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
             userList.add(user);
         });
-        if (userService.saveBatch(userList)) {
+        if (this.saveBatch(userList)) {
             return returnBase.succeed(new User2VO().userList2VO(userList));
         }
         return returnBase.failedWithErrorEnum(ErrorEnum.USER_BATCH_ADD_FAIL);
@@ -117,7 +114,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         userList.forEach(user -> user.setDeleteFlag(LogicDeleteFlag.DELETED.getDeleteFlag()));
 
-        if (userService.updateBatchById(userList)) {
+        if (this.updateBatchById(userList)) {
             return returnBase.setSuccess(true);
         }
 
@@ -151,7 +148,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         });
 
-        if (userService.saveOrUpdateBatch(userList)) {
+        if (this.saveOrUpdateBatch(userList)) {
             return returnBase.succeed(new User2VO().userList2VO(userList));
         }
         return returnBase.failedWithErrorEnum(ErrorEnum.UPDATE_FAIL);
@@ -241,6 +238,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public ReturnBase<List<UserVO>> getUserList() {
-        return new ReturnBase<List<UserVO>>().succeed(new User2VO().userList2VO(userMapper.selectList(new QueryWrapper<User>().eq("delete_flag", "0"))));
+        List<User> userList = userMapper.selectList(new QueryWrapper<User>().eq("delete_flag", "0"));
+        return new ReturnBase<List<UserVO>>().succeedWithDataCount(new User2VO().userList2VO(userList), (long) userList.size());
     }
 }
